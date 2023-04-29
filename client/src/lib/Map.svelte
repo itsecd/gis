@@ -18,7 +18,28 @@
 
         allFeatures = featureCollection.features.sort((a ,b) => {
             return a.time < b.time
-        });                
+        });       
+        
+        map.addSource('earthquakes', {
+            type: "geojson",
+            data: features
+        });
+        map.addLayer(
+        {
+            'id' : 'earthquakes',
+            'type': 'circle',
+            'source' : 'earthquakes',
+            'paint': 
+            {
+                "circle-color": "red",
+                "circle-blur": 1,
+                "circle-opacity": 0.5,
+                "circle-radius" : {
+                    "property" : "mag",
+                    "stops": [[4, 10], [8, 100]]
+                }
+            }
+        });
     }
 
     onMount(() => {
@@ -33,33 +54,9 @@
             for (let feature of allFeatures) {            
                 setInterval(() => {
                     features.features.push(feature);
-
-                    map.addSource(feature.properties.id, {
-                        type: "geojson",
-                        data: {
-                            "type" : "FeatureCollection",
-                            "name" : "CSV",
-                            "features" : [feature]
-                        }
-                    })
-                    map.addLayer(
-                    {
-                        'id' : feature.properties.id,
-                        'type': 'circle',
-                        'source' : feature.properties.id,
-                        'paint': 
-                        {
-                            "circle-color": "red",
-                            "circle-blur": 1,
-                            "circle-opacity": 0.5,
-                            "circle-radius" : {
-                                "property" : "mag",
-                                "stops": [[4, 10], [8, 100]]
-                            }
-                        }
-                    });
+                    (map.getSource('earthquakes') as GeoJSONSource).setData(features);                  
                 }, 200);
-            }                          
+            }                        
         });          
     })
 
