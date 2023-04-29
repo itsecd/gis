@@ -15,7 +15,16 @@
             'id' : id,
             'type': type,
             'source' : source,
-            'paint': {"circle-color": "pink"}
+            'paint': 
+            {
+                "circle-color": "red",
+                "circle-blur": 1,
+                "circle-opacity": 0.5,
+                "circle-radius" : {
+                    "property" : "mag",
+                    "stops": [[4, 10], [8, 100]]
+                }
+            }
         });
     }
 
