@@ -11,10 +11,10 @@ public class LoadGeojsonController : ControllerBase
     /// 
     /// </summary>
     /// <param name="eventid">string of event Id</param>
-    /// <param name="dyfi">type of url: dyfi_zip/dyfi_geo_10km/dyfi_geo_1km</param>
+    /// <param name="name">name of url: dyfi_zip/dyfi_geo_10km/dyfi_geo_1km/FFM</param>
     /// <returns></returns>
     [HttpGet(Name = "GetGeojson")]
-    public async Task<ActionResult<string>> Get(string eventid, string dyfi)
+    public async Task<ActionResult<string>> Get(string eventid, string name)
     {
         var httpClient = new HttpClient();
 
@@ -24,7 +24,11 @@ public class LoadGeojsonController : ControllerBase
 
         var updateTime = geoJsonObj.properties.products.dyfi[0].updateTime;
 
-        var url = $"https://earthquake.usgs.gov/product/dyfi/{eventid}/us/{updateTime}/{dyfi}.geojson";
+        string url;
+        if (name.ToUpper() == "FFM")
+            url = "https://earthquake.usgs.gov/product/finite-fault/us6000jllz_1/us/1676951251912/FFM.geojson";
+        else
+            url = $"https://earthquake.usgs.gov/product/dyfi/{eventid}/us/{updateTime}/{name}.geojson";
         return RedirectPermanent(url);
     }
 }
