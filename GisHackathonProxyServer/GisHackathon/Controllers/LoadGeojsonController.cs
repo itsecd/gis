@@ -7,6 +7,12 @@ namespace ToSamaraApiServer.Controllers;
 [ApiController]
 public class LoadGeojsonController : ControllerBase
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="eventid">string of event Id</param>
+    /// <param name="dyfi">type of url: dyfi_zip/dyfi_geo_10km/dyfi_geo_1km</param>
+    /// <returns></returns>
     [HttpGet(Name = "GetGeojson")]
     public async Task<ActionResult<string>> Get(string eventid, string dyfi)
     {
