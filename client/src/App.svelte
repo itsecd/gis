@@ -7,6 +7,9 @@
 </script>
 
 <main>
+  <Header>
+  </Header>
+  
   <Content>
     <MaplibreMap/>
   </Content>
