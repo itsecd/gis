@@ -12,7 +12,27 @@
     };
     let allFeatures = [];
 
-    async function addGeoJsonLayer(id, geoJsonUrl, source, type) {
+    // Earthquake animation
+    const timer = ms => new Promise(res => setTimeout(res, ms))
+    let earthquake_rendered: boolean = false;
+
+    async function earthquake_animation(ms:number) { 
+        for (let feature of allFeatures) {
+            if (earthquake_rendered)
+                break;
+            
+            console.log(feature);
+
+            features.features.push(feature);
+            (map.getSource('earthquakes') as GeoJSONSource).setData(features);
+
+            await timer(ms); 
+        }
+
+        earthquake_rendered = true;
+    }
+
+    async function addGeoJsonLayer(geoJsonUrl) {
         const response = await fetch(geoJsonUrl);
         const featureCollection = await response.json();
 
@@ -49,14 +69,10 @@
             zoom: 0
         })
         map.on('load', async () => {
-            await addGeoJsonLayer("earthquakes_layer", "query_geojson.geojson", "earthquakes", "circle");            
+            await addGeoJsonLayer("query_geojson.geojson");            
+            console.log(Object.keys(allFeatures).length);   
             
-            for (let feature of allFeatures) {            
-                setInterval(() => {
-                    features.features.push(feature);
-                    (map.getSource('earthquakes') as GeoJSONSource).setData(features);                  
-                }, 200);
-            }                        
+            await earthquake_animation(200);                        
         });          
     })
 
