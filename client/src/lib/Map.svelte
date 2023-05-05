@@ -1,9 +1,18 @@
 <script lang="ts">
     import maplibregl, {BoxZoomHandler, MouseRotateHandler, type MapLibreEvent, RasterBoundsArray, GeoJSONSource, GeoJSONFeature, MapMouseEvent } from 'maplibre-gl';
     import { onMount } from 'svelte';
+    import { Protocol, PMTiles } from 'pmtiles'
     import 'maplibre-gl/dist/maplibre-gl.css';
     
     let map: maplibregl.Map;
+
+    let protocol = new Protocol();
+    maplibregl.addProtocol("pmtiles",protocol.tile);
+    // pmtiles url
+    let PMTILES_URL = "https://storage.yandexcloud.net/pmtest/population.pmtiles";
+    const p = new PMTiles(PMTILES_URL)
+    // this is so we share one instance across the JS code and the map renderer
+    protocol.add(p);
 
     const features = {
         "type" : "FeatureCollection",
@@ -11,6 +20,84 @@
 	    "features" : []
     };
     let allFeatures = [];
+
+    async function addPopulationPmtilesLayer() {
+        map.addSource('population', {
+            type: "vector",
+            url: "pmtiles://" + PMTILES_URL,
+            attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+        });
+        map.addLayer(
+        {
+            'id' : 'population',
+            'type': 'fill',
+            'source-layer': 'populationfr',
+            'source' : 'population',
+            "layout": {
+                "visibility": "visible"
+            },
+            'paint': {
+
+                'fill-color': {
+                    "type": "interval",
+                    "stops": [
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 2
+                            },
+                        "rgba(115, 193, 35, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 5
+                            },
+                        "rgba(179, 201, 12, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 10
+                            },
+                        "rgba(201, 125, 12, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 50
+                            },
+                        "rgba(187, 58, 10, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 100
+                            },
+                        "rgba(201, 26, 12, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 200
+                            },
+                        "rgba(103, 9, 3, 1)"
+                        ],
+                        [
+                            {
+                                "zoom": 1,
+                                "value": 300
+                            },
+                        "rgba(70, 4, 2, 1)"
+                        ]
+                    ],
+                    "default": "rgba(161, 173, 161, 1)",
+                    "property": "population"
+                    },
+                    "fill-antialias": false
+            }
+        });
+    }
 
     async function addGeoJsonLayer(geoJsonUrl) {
         const response = await fetch(geoJsonUrl);
@@ -39,7 +126,7 @@
                     "stops": [[4, 10], [8, 100]]
                 }
             }
-        });
+        },'water_intermittent');
     }
 
     // Earthquake animation
@@ -102,6 +189,10 @@
             style: 'https://api.maptiler.com/maps/5a2e698d-bf96-462a-a122-fbd86ebc7aae/style.json?key=r9k1CXRP7YCqI9zWOIjp',
             zoom: 0
         });
+        
+        map.on('load', () => {
+            addPopulationPmtilesLayer();
+        })
 
         map.on('click', 'earthquakes', function (e) {
             //@ts-ignore
