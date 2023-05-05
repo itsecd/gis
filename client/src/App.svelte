@@ -7,7 +7,6 @@
     Button
   } from 'carbon-components-svelte';
   import MaplibreMap from './lib/Map.svelte';
-  import Restart from "carbon-icons-svelte/lib/Restart.svelte";
   import Earthquake from "carbon-icons-svelte/lib/Earthquake.svelte";
   import 'carbon-components-svelte/css/g100.css';
 

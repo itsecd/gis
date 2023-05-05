@@ -1,8 +1,8 @@
 <script lang="ts">
-    import maplibregl, {BoxZoomHandler, MouseRotateHandler, type MapLibreEvent, RasterBoundsArray, GeoJSONSource, GeoJSONFeature } from 'maplibre-gl';
+    import maplibregl, {BoxZoomHandler, MouseRotateHandler, type MapLibreEvent, RasterBoundsArray, GeoJSONSource, GeoJSONFeature, MapMouseEvent } from 'maplibre-gl';
     import { onMount } from 'svelte';
     import 'maplibre-gl/dist/maplibre-gl.css';
-
+    
     let map: maplibregl.Map;
 
     const features = {
@@ -49,13 +49,10 @@
     let earthquake_continues: boolean = false;
 
     async function earthquake_animation(ms:number) {
-        console.log(`cont=${earthquake_continues} setting to true anyway`);
-        console.log(`rend=${earthquake_rendered}`);
         earthquake_continues = true;
         let i:number = 0; 
         for (let feature of allFeatures) {
             if (earthquake_rendered) {
-                console.log('ANIMATION: already rendered, leaving...')
                 earthquake_continues = false;
                 break;
             }
@@ -74,9 +71,8 @@
     }
 
     async function start_earthquake(ms: number) {
-        console.log('vla');
         if (!earthquake_continues) {
-            console.log(`added geojson_layer`);
+            // Add earthquake layer
             await addGeoJsonLayer("query_geojson.geojson");
 
             // Start animation
@@ -105,20 +101,36 @@
             container: 'map',
             style: 'https://api.maptiler.com/maps/5a2e698d-bf96-462a-a122-fbd86ebc7aae/style.json?key=r9k1CXRP7YCqI9zWOIjp',
             zoom: 0
+        });
+
+        map.on('click', 'earthquakes', function (e) {
+            //@ts-ignore
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var properties = e.features[0].properties;
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new maplibregl.Popup({className: 'point-info-popup'})
+            .setLngLat(coordinates)
+            .setHTML(`<p><font size=2 color=#0f1417>${JSON.stringify(properties, null, 2)}</font></p>`)
+            .addTo(map);
+        });
+
+        map.on('mouseenter', 'earthquakes', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'earthquakes', function() {
+            map.getCanvas().style.cursor='';
         })
-        map.on('load', async () => {
-            //await addGeoJsonLayer("query_geojson.geojson");            
-            console.log(Object.keys(allFeatures).length);   
-        
-            //await earthquake_animation(200);                        
-        });          
     })
 
     $: animation_trigger, start_earthquake(200);
 </script>
 
 <div id='map'>
-
 </div>
 
 <style>
