@@ -94,7 +94,8 @@
                     "default": "rgba(161, 173, 161, 1)",
                     "property": "population"
                     },
-                    "fill-antialias": false
+                    "fill-antialias": false,
+                    "fill-opacity": 0.3
             }
         }, 'water_intermittent');
     }
