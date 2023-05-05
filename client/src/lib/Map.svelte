@@ -96,7 +96,7 @@
                     },
                     "fill-antialias": false
             }
-        });
+        }, 'water_intermittent');
     }
 
     async function addGeoJsonLayer(geoJsonUrl) {
@@ -126,7 +126,7 @@
                     "stops": [[4, 10], [8, 100]]
                 }
             }
-        },'water_intermittent');
+        }, 'population');
     }
 
     // Earthquake animation
